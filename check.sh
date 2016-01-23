@@ -227,7 +227,7 @@ fi
 echo Downloading link information
 wget -S --spider http://www.skype.com/go/getskype-full -o $tmp/$appname.log
 echo
-url=(sed "s/http/\nhttp/g" $tmp/$appname.log | sed "s/exe/exe\n/g" | grep "http.*exe" | head -1)
+url=$(sed "s/http/\nhttp/g" $tmp/$appname.log | sed "s/exe/exe\n/g" | grep "http.*exe" | head -1)
 echo $url
 echo
 
