@@ -260,7 +260,11 @@ echo "$sha1">> $db
 			
 echo searching exact version number..
 7z x $tmp/$filename -y -o$tmp > /dev/null
-version=$(cat $tmp/.rsrc/0/MANIFEST/1 | sed "s/<dependency>/\n<dependency>\n/g" | sed "s/<\/assembly>/\n<\/assembly>\n/g" | sed "/<dependency>/,/<\/assembly>/d" | sed "s/\d034/\n/g" | grep "^[0-9]*.\.[0-9]*.\.[0-9]*.\.[0-9]")
+version=$(sed "s/<dependency>/\n<dependency>\n/g" $tmp/.rsrc/0/MANIFEST/1 | \
+sed "s/<\/assembly>/\n<\/assembly>\n/g" | \
+sed "/<dependency>/,/<\/assembly>/d" | \
+sed "s/\d034/\n/g" | \
+grep "^[0-9]*.\.[0-9]*.\.[0-9]*.\.[0-9]")
 echo $version
 echo
 
