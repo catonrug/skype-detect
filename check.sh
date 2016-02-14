@@ -249,13 +249,6 @@ echo creating md5 checksum of file..
 md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
 echo
 
-#lets put all signs about this file into the database
-echo "$url">> $db
-echo "$version">> $db
-echo "$md5">> $db
-echo "$sha1">> $db
-echo >> $db
-	
 echo searching exact version number..
 7z x $tmp/$filename -y -o$tmp > /dev/null
 version=$(sed "s/<dependency>/\n<dependency>\n/g" $tmp/.rsrc/0/MANIFEST/1 | \
@@ -265,6 +258,13 @@ sed "s/\d034/\n/g" | \
 grep "^[0-9]*.\.[0-9]*.\.[0-9]*.\.[0-9]")
 echo $version
 echo
+
+#lets put all signs about this file into the database
+echo "$url">> $db
+echo "$version">> $db
+echo "$md5">> $db
+echo "$sha1">> $db
+echo >> $db
 
 #create unique filename for google upload
 newfilename=$(echo $filename | sed "s/\.exe/_`echo $version`\.exe/")
