@@ -231,6 +231,14 @@ url=$(sed "s/http/\nhttp/g" $tmp/$appname.log | sed "s/exe/exe\n/g" | grep "http
 echo $url
 echo
 
+#check if this url is in database
+grep "$url" $db > /dev/null
+if [ $? -ne 0 ]; then
+
+echo new version detected!
+echo
+
+#set file name
 filename=$(echo $url | sed "s/^.*\///g")
 
 echo downloading file..
@@ -241,22 +249,14 @@ echo creating sha1 checksum of file..
 sha1=$(sha1sum $tmp/$filename | sed "s/\s.*//g")
 echo
 
-#check if this file is already in database
-grep "$sha1" $db > /dev/null
-if [ $? -ne 0 ]
-#if sha1 sum do not exist in database then this is new version
-then
-echo new version detected!
-echo
-
 echo creating md5 checksum of file..
 md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
 echo
 
 #lets put all signs about this file into the database
+echo "$url">> $db
 echo "$md5">> $db
 echo "$sha1">> $db
-
 			
 echo searching exact version number..
 7z x $tmp/$filename -y -o$tmp > /dev/null
@@ -281,15 +281,15 @@ echo Make sure you have created \"$appname\" direcotry inside it!
 echo
 fi
 
-							#lets send emails to all people in "posting" file
-							emails=$(cat ../posting | sed '$aend of file')
-							printf %s "$emails" | while IFS= read -r onemail
-							do {
-								python ../send-email.py "$onemail" "$filename $version" "$url
+#lets send emails to all people in "posting" file
+emails=$(cat ../posting | sed '$aend of file')
+printf %s "$emails" | while IFS= read -r onemail
+do {
+python ../send-email.py "$onemail" "Skype $version" "$url 
 $md5
 $sha1"
-							} done
-							echo
+} done
+echo
 
 fi
 
