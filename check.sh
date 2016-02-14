@@ -220,10 +220,6 @@ if [ ! -f "/home/pi/client_secrets.json" ]
 fi
 
 
-
-
-
-
 echo Downloading link information
 wget -S --spider http://www.skype.com/go/getskype-full -o $tmp/$appname.log
 echo
@@ -255,9 +251,11 @@ echo
 
 #lets put all signs about this file into the database
 echo "$url">> $db
+echo "$version">> $db
 echo "$md5">> $db
 echo "$sha1">> $db
-			
+echo >> $db
+	
 echo searching exact version number..
 7z x $tmp/$filename -y -o$tmp > /dev/null
 version=$(sed "s/<dependency>/\n<dependency>\n/g" $tmp/.rsrc/0/MANIFEST/1 | \
