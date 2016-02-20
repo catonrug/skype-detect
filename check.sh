@@ -235,10 +235,8 @@ echo Downloading link information
 wget -S --spider "$url" -o $tmp/$appname.log
 echo
 
-
-
 #get full url of exe or msi installer
-url=$(sed "s/http/\nhttp/g" $tmp/$appname.log | sed "s/exe/exe\n/g" | sed "s/msi/msi\n/g" | grep "http.*exe\|http.*msi" | head -1)
+url=$(grep -A99 "^Resolving" $tmp/$appname.log | sed "s/http/\nhttp/g;s/exe/exe\n/g;s/msi/msi\n/g" | grep "http.*exe\|http.*msi" | head -1)
 echo $url
 echo
 
@@ -256,14 +254,6 @@ echo downloading file..
 wget $url -O$tmp/$filename
 echo
 
-echo creating sha1 checksum of file..
-sha1=$(sha1sum $tmp/$filename | sed "s/\s.*//g")
-echo
-
-echo creating md5 checksum of file..
-md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
-echo
-
 echo searching exact version number..
 7z x $tmp/$filename -y -o$tmp > /dev/null
 
@@ -275,6 +265,14 @@ fi
 version=$(grep -B99 -m1 "<dependency>" $tmp/.rsrc/0/MANIFEST/1 | sed "s/\d034/\n/g" | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+")
 echo $version | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+"
 if [ $? -eq 0 ]; then
+echo
+
+echo creating sha1 checksum of file..
+sha1=$(sha1sum $tmp/$filename | sed "s/\s.*//g")
+echo
+
+echo creating md5 checksum of file..
+md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
 echo
 
 #lets put all signs about this file into the database
