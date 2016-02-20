@@ -371,6 +371,7 @@ $businessurl
 $businessmd5
 $businesssha1
 
+Change log:
 `cat $tmp/change.log`"
 } done
 echo
@@ -384,6 +385,7 @@ https://c7b4a45f0a3bc4eb45648fd482921771430a8d95.googledrive.com/host/0B_3uBwg3R
 $md5
 $sha1
 
+Change log:
 `cat $tmp/change.log`"
 } done
 echo
