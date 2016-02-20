@@ -272,6 +272,9 @@ echo
 
 case "$filename" in
 *msi)
+businessurl=$(echo "$url")
+businessmd5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
+businesssha1=$(sha1sum $tmp/$filename | sed "s/\s.*//g")
 rm $tmp/* -rf > /dev/null
 wget -S --spider -o $tmp/$appname.log "http://download.skype.com/msi/SkypeSetup_`echo $version`.msi"
 url=$(sed "s/http/\nhttp/g;s/\.msi/\.msi\n/g" $tmp/$appname.log | grep "http.*\.msi" | head -1)
@@ -279,6 +282,19 @@ echo $url | grep "http.*SkypeSetup"
 if [ $? -eq 0 ]; then
 filename=$(echo $url | sed "s/^.*\///g")
 wget $url -O$tmp/$filename
+size=$(du -b $tmp/$filename | sed "s/\s.*$//g")
+if [ $size -gt 5120000 ]; then
+
+echo "$businessurl">> $db
+echo "$version">> $db
+echo "$businessmd5">> $db
+echo "$businesssha1">> $db
+echo >> $db
+
+else
+echo $filename to small
+fi
+
 else
 echo $filename not hosting
 fi
