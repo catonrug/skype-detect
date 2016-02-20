@@ -304,13 +304,12 @@ echo >> $db
 case "$filename" in
 *exe)
 newfilename=$(echo $filename | sed "s/\.exe/_`echo $version`\.exe/")
+mv $tmp/$filename $tmp/$newfilename
 ;;
 *msi)
-newfilename=$(echo $filename | sed "s/\.msi/_`echo $version`\.msi/")
+newfilename=$(echo $filename)
 ;;
 esac
-
-mv $tmp/$filename $tmp/$newfilename
 
 #if google drive config exists then upload and delete file:
 if [ -f "../gd/$appname.cfg" ]
