@@ -241,7 +241,7 @@ echo $url
 echo
 
 #check if this url is in database
-grep "$url" $db > /dev/null
+grep "$url" $db
 if [ $? -ne 0 ]; then
 
 echo new version detected!
@@ -324,6 +324,11 @@ do {
 python ../send-email.py "$onemail" "To Do List" "Version do not match version pattern: 
 $url "
 } done
+fi
+
+else
+#file is already in database
+echo file is already in database
 fi
 
 } done
