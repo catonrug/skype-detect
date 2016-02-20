@@ -313,7 +313,7 @@ $md5
 $sha1"
 } done
 echo
-fi
+
 
 else
 #version do not match version pattern
