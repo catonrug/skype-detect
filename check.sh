@@ -342,23 +342,38 @@ fi
 
 case "$filename" in
 *msi)
-type=$(echo "msi")
-;;
-*exe)
-type=$(echo)
-;;
-esac
-
-#lets send emails to all people in "posting" file
 emails=$(cat ../posting | sed '$aend of file')
 printf %s "$emails" | while IFS= read -r onemail
 do {
-python ../send-email.py "$onemail" "$name $version $type" "$url 
+python ../send-email.py "$onemail" "$name $version msi" "$url 
+https://c7b4a45f0a3bc4eb45648fd482921771430a8d95.googledrive.com/host/0B_3uBwg3RcdVMEZGNlUxeVd0dWM/$newfilename 
+$md5
+$sha1
+
+Skype for Business:
+$businessurl 
+$businessmd5
+$businesssha1"
+} done
+echo
+;;
+*exe)
+emails=$(cat ../posting | sed '$aend of file')
+printf %s "$emails" | while IFS= read -r onemail
+do {
+python ../send-email.py "$onemail" "$name $version" "$url 
 https://c7b4a45f0a3bc4eb45648fd482921771430a8d95.googledrive.com/host/0B_3uBwg3RcdVMEZGNlUxeVd0dWM/$newfilename 
 $md5
 $sha1"
 } done
 echo
+;;
+esac
+
+
+
+#lets send emails to all people in "posting" file
+
 
 else
 #skype setup file found anymore
