@@ -219,11 +219,26 @@ if [ ! -f "/home/pi/client_secrets.json" ]
 		fi
 fi
 
+name=$(echo "Skype")
+
+linklist=$(cat <<EOF
+http://www.skype.com/go/getskype-full
+http://www.skype.com/go/getskype-msi
+extra line
+EOF
+)
+
+printf %s "$linklist" | while IFS= read -r url
+do {
 
 echo Downloading link information
-wget -S --spider http://www.skype.com/go/getskype-full -o $tmp/$appname.log
+wget -S --spider "$url" -o $tmp/$appname.log
 echo
-url=$(sed "s/http/\nhttp/g" $tmp/$appname.log | sed "s/exe/exe\n/g" | grep "http.*exe" | head -1)
+
+
+
+#get full url of exe or msi installer
+url=$(sed "s/http/\nhttp/g" $tmp/$appname.log | sed "s/exe/exe\n/g" | sed "s/msi/msi\n/g" | grep "http.*exe\|http.*msi" | head -1)
 echo $url
 echo
 
@@ -251,12 +266,15 @@ echo
 
 echo searching exact version number..
 7z x $tmp/$filename -y -o$tmp > /dev/null
-version=$(sed "s/<dependency>/\n<dependency>\n/g" $tmp/.rsrc/0/MANIFEST/1 | \
-sed "s/<\/assembly>/\n<\/assembly>\n/g" | \
-sed "/<dependency>/,/<\/assembly>/d" | \
-sed "s/\d034/\n/g" | \
-grep "^[0-9]*.\.[0-9]*.\.[0-9]*.\.[0-9]")
-echo $version
+
+if [ -f "$tmp/Skype.exe" ]; then
+echo extracting Skype.exe
+7z x $tmp/Skype.exe -y -o$tmp > /dev/null
+fi
+
+version=$(grep -B99 -m1 "<dependency>" $tmp/.rsrc/0/MANIFEST/1 | sed "s/\d034/\n/g" | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+")
+echo $version | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+"
+if [ $? -eq 0 ]; then
 echo
 
 #lets put all signs about this file into the database
@@ -267,7 +285,15 @@ echo "$sha1">> $db
 echo >> $db
 
 #create unique filename for google upload
+case "$filename" in
+*exe)
 newfilename=$(echo $filename | sed "s/\.exe/_`echo $version`\.exe/")
+;;
+*msi)
+newfilename=$(echo $filename | sed "s/\.msi/_`echo $version`\.msi/")
+;;
+esac
+
 mv $tmp/$filename $tmp/$newfilename
 
 #if google drive config exists then upload and delete file:
@@ -290,6 +316,19 @@ $sha1"
 } done
 echo
 fi
+
+else
+#version do not match version pattern
+echo version do not match version pattern
+emails=$(cat ../maintenance | sed '$aend of file')
+printf %s "$emails" | while IFS= read -r onemail
+do {
+python ../send-email.py "$onemail" "To Do List" "Version do not match version pattern: 
+$url "
+} done
+fi
+
+} done
 
 #clean and remove whole temp direcotry
 rm $tmp -rf > /dev/null
