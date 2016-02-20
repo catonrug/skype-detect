@@ -274,7 +274,7 @@ case "$filename" in
 *msi)
 rm $tmp/* -rf > /dev/null
 wget -S --spider -o $tmp/$appname.log "http://download.skype.com/msi/SkypeSetup_`echo $version`.msi"
-url=$(grep -A99 "^Resolving" $tmp/$appname.log | sed "s/http/\nhttp/g;s/msi/msi\n/g" | grep "http.*\.msi" | head -1)
+url=$(sed "s/http/\nhttp/g;s/\.msi/\.msi\n/g" $tmp/$appname.log | grep "http.*\.msi" | head -1)
 echo $url | grep "http.*SkypeSetup"
 if [ $? -eq 0 ]; then
 filename=$(echo $url | sed "s/^.*\///g")
