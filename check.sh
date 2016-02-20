@@ -221,6 +221,8 @@ fi
 
 name=$(echo "Skype")
 
+changes=$(echo "https://support.skype.com/en/faq/FA34509/what-s-new-in-skype-for-windows-desktop")
+
 linklist=$(cat <<EOF
 http://www.skype.com/go/getskype-full
 http://www.skype.com/go/getskype-msi
@@ -305,6 +307,20 @@ esac
 if [ -f "$tmp/$filename" ]; then
 echo
 
+versionforchangelog=$(echo "$version" | sed "s/\.[0-9]\+//2;s/\.[0-9]\+//2;s/^/Skype /")
+wget -qO- "$changes" | grep -A20 "$versionforchangelog" | grep -B99 -m2 "</tr>" | grep -A99 "<ul>" | grep -B99 -m1 "</ul>" | sed -e "s/<[^>]*>//g" | sed "s/^[ \t]*//g" | grep -v "^$" | grep "\w" | sed "s/^/- /" > $tmp/change.log
+
+#check if even something has been created
+if [ -f $tmp/change.log ]; then
+
+#calculate how many lines log file contains
+lines=$(cat $tmp/change.log | wc -l)
+if [ $lines -gt 0 ]; then
+echo change log found:
+echo
+cat $tmp/change.log
+echo
+
 echo creating md5 checksum of file..
 md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
 echo
@@ -353,7 +369,9 @@ $sha1
 Skype for Business:
 $businessurl 
 $businessmd5
-$businesssha1"
+$businesssha1
+
+`cat $tmp/change.log`"
 } done
 echo
 ;;
@@ -364,24 +382,45 @@ do {
 python ../send-email.py "$onemail" "$name $version" "$url 
 https://c7b4a45f0a3bc4eb45648fd482921771430a8d95.googledrive.com/host/0B_3uBwg3RcdVMEZGNlUxeVd0dWM/$newfilename 
 $md5
-$sha1"
+$sha1
+
+`cat $tmp/change.log`"
 } done
 echo
 ;;
 esac
 
-
-
-#lets send emails to all people in "posting" file
-
-
 else
-#skype setup file found anymore
-echo skype setup file found anymore
+#changes.log file has created but changes is mission
+echo changes.log file has created but changes is mission
 emails=$(cat ../maintenance | sed '$aend of file')
 printf %s "$emails" | while IFS= read -r onemail
 do {
-python ../send-email.py "$onemail" "To Do List" "skype setup file found anymore: 
+python ../send-email.py "$onemail" "To Do List" "changes.log file has created but changes is mission: 
+$version 
+$changes "
+} done
+fi
+
+else
+#changes.log has not been created
+echo changes.log has not been created
+emails=$(cat ../maintenance | sed '$aend of file')
+printf %s "$emails" | while IFS= read -r onemail
+do {
+python ../send-email.py "$onemail" "To Do List" "changes.log has not been created: 
+$version 
+$changes "
+} done
+fi
+
+else
+#can not find skype setup file anymore
+echo can not find skype setup file anymore
+emails=$(cat ../maintenance | sed '$aend of file')
+printf %s "$emails" | while IFS= read -r onemail
+do {
+python ../send-email.py "$onemail" "To Do List" "can not find skype setup file anymore: 
 $link 
 $url "
 } done
