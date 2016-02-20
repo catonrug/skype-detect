@@ -270,6 +270,21 @@ echo $version | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+"
 if [ $? -eq 0 ]; then
 echo
 
+case "$filename" in
+*msi)
+rm $tmp/* -rf > /dev/null
+wget -S --spider -o $tmp/$appname.log "http://download.skype.com/msi/SkypeSetup_`echo $version`.msi"
+url=$(grep -A99 "^Resolving" $tmp/$appname.log | sed "s/http/\nhttp/g;s/msi/msi\n/g" | grep "http.*\.msi" | head -1)
+echo $url | grep "http.*SkypeSetup"
+if [ $? -eq 0 ]; then
+filename=$(echo $url | sed "s/^.*\///g")
+wget $url -O$tmp/$filename
+else
+echo $filename not hosting
+fi
+;;
+esac
+
 echo creating md5 checksum of file..
 md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
 echo
