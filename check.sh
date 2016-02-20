@@ -285,6 +285,10 @@ fi
 ;;
 esac
 
+#if previous steps fails the setup file is already deleted
+if [ -f "$tmp/$filename" ]; then
+echo
+
 echo creating md5 checksum of file..
 md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
 echo
@@ -340,6 +344,17 @@ $sha1"
 } done
 echo
 
+else
+#skype setup file found anymore
+echo skype setup file found anymore
+emails=$(cat ../maintenance | sed '$aend of file')
+printf %s "$emails" | while IFS= read -r onemail
+do {
+python ../send-email.py "$onemail" "To Do List" "skype setup file found anymore: 
+$link 
+$url "
+} done
+fi
 
 else
 #version do not match version pattern
