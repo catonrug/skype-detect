@@ -228,16 +228,19 @@ extra line
 EOF
 )
 
-printf %s "$linklist" | while IFS= read -r url
+printf %s "$linklist" | while IFS= read -r link
 do {
 
+rm $tmp/* -rf > /dev/null
+
 echo Downloading link information
-wget -S --spider "$url" -o $tmp/$appname.log
+wget -S --spider "$link" -o $tmp/$appname.log
 echo
 
 #get full url of exe or msi installer
 url=$(grep -A99 "^Resolving" $tmp/$appname.log | sed "s/http/\nhttp/g;s/exe/exe\n/g;s/msi/msi\n/g" | grep "http.*\.exe\|http.*\.msi" | head -1)
-echo $url
+echo $url | grep "http.*SkypeSetup"
+if [ $? -eq 0 ]; then
 echo
 
 #check if this url is in database
@@ -267,12 +270,12 @@ echo $version | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+"
 if [ $? -eq 0 ]; then
 echo
 
-echo creating sha1 checksum of file..
-sha1=$(sha1sum $tmp/$filename | sed "s/\s.*//g")
-echo
-
 echo creating md5 checksum of file..
 md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
+echo
+
+echo creating sha1 checksum of file..
+sha1=$(sha1sum $tmp/$filename | sed "s/\s.*//g")
 echo
 
 #lets put all signs about this file into the database
@@ -303,11 +306,20 @@ echo Make sure you have created \"$appname\" direcotry inside it!
 echo
 fi
 
+case "$filename" in
+*msi)
+type=$(echo "msi")
+;;
+*exe)
+type=$(echo)
+;;
+esac
+
 #lets send emails to all people in "posting" file
 emails=$(cat ../posting | sed '$aend of file')
 printf %s "$emails" | while IFS= read -r onemail
 do {
-python ../send-email.py "$onemail" "Skype $version" "$url 
+python ../send-email.py "$onemail" "$name $version $type" "$url 
 https://c7b4a45f0a3bc4eb45648fd482921771430a8d95.googledrive.com/host/0B_3uBwg3RcdVMEZGNlUxeVd0dWM/$newfilename 
 $md5
 $sha1"
@@ -322,6 +334,7 @@ emails=$(cat ../maintenance | sed '$aend of file')
 printf %s "$emails" | while IFS= read -r onemail
 do {
 python ../send-email.py "$onemail" "To Do List" "Version do not match version pattern: 
+$link 
 $url "
 } done
 fi
@@ -329,6 +342,18 @@ fi
 else
 #file is already in database
 echo file is already in database
+fi
+
+else
+#url do not match standard pattern
+echo url do not match sdandart pattern
+emails=$(cat ../maintenance | sed '$aend of file')
+printf %s "$emails" | while IFS= read -r onemail
+do {
+python ../send-email.py "$onemail" "To Do List" "url do not match sdandart pattern: 
+$link 
+$url "
+} done
 fi
 
 } done
