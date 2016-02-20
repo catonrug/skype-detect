@@ -236,7 +236,7 @@ wget -S --spider "$url" -o $tmp/$appname.log
 echo
 
 #get full url of exe or msi installer
-url=$(grep -A99 "^Resolving" $tmp/$appname.log | sed "s/http/\nhttp/g;s/exe/exe\n/g;s/msi/msi\n/g" | grep "http.*exe\|http.*msi" | head -1)
+url=$(grep -A99 "^Resolving" $tmp/$appname.log | sed "s/http/\nhttp/g;s/exe/exe\n/g;s/msi/msi\n/g" | grep "http.*\.exe\|http.*\.msi" | head -1)
 echo $url
 echo
 
