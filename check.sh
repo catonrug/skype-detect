@@ -238,7 +238,7 @@ echo changes.log file has created but changes is mission
 emails=$(cat ../maintenance | sed '$aend of file')
 printf %s "$emails" | while IFS= read -r onemail
 do {
-python ../send-email.py "$onemail" "To Do List" "changes.log file has created but changes is mission: 
+python ../send-email.py "$onemail" "$name $version" "changes.log file has created but changes is mission: 
 $version 
 $changes "
 } done
