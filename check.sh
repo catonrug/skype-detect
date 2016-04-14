@@ -155,7 +155,14 @@ if [ -f $tmp/change.log ]; then
 
 #calculate how many lines log file contains
 lines=$(cat $tmp/change.log | wc -l)
-if [ $lines -gt 0 ]; then
+if [ $lines -ge 0 ]; then
+
+if [ $lines -eq 0 ]; then
+echo "Another secret changes has been integrated in this release." > $tmp/change.log
+echo "Check out yourself:" >> $tmp/change.log
+echo "$changes" >> $tmp/change.log
+fi
+
 echo change log found:
 echo
 cat $tmp/change.log
