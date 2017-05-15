@@ -147,27 +147,6 @@ esac
 if [ -f "$tmp/$filename" ]; then
 echo
 
-versionforchangelog=$(echo "$version" | sed "s/\.[0-9]\+//2;s/\.[0-9]\+//2;s/^/Skype /")
-wget -qO- "$changes" | grep -A20 "$versionforchangelog" | grep -B99 -m2 "</tr>" | grep -A99 "<ul>" | grep -B99 -m1 "</ul>" | sed -e "s/<[^>]*>//g" | sed "s/^[ \t]*//g" | grep -v "^$" | grep "\w" | sed "s/^/- /" > $tmp/change.log
-
-#check if even something has been created
-if [ -f $tmp/change.log ]; then
-
-#calculate how many lines log file contains
-lines=$(cat $tmp/change.log | wc -l)
-if [ $lines -ge 0 ]; then
-
-if [ $lines -eq 0 ]; then
-echo "Another secret changes has been integrated in this release." > $tmp/change.log
-echo "Check out yourself:" >> $tmp/change.log
-echo "$changes" >> $tmp/change.log
-fi
-
-echo change log found:
-echo
-cat $tmp/change.log
-echo
-
 echo creating md5 checksum of file..
 md5=$(md5sum $tmp/$filename | sed "s/\s.*//g")
 echo
@@ -217,8 +196,7 @@ $businessurl
 $businessmd5
 $businesssha1
 
-Change log:
-`cat $tmp/change.log`"
+"
 } done
 echo
 ;;
@@ -230,36 +208,12 @@ python ../send-email.py "$onemail" "$name $version" "$url
 $md5
 $sha1
 
-Change log:
-`cat $tmp/change.log`"
+"
 } done
 echo
 ;;
 esac
 
-else
-#changes.log file has created but changes is mission
-echo changes.log file has created but changes is mission
-emails=$(cat ../maintenance | sed '$aend of file')
-printf %s "$emails" | while IFS= read -r onemail
-do {
-python ../send-email.py "$onemail" "$name $version" "changes.log file has created but changes is mission: 
-$version 
-$changes "
-} done
-fi
-
-else
-#changes.log has not been created
-echo changes.log has not been created
-emails=$(cat ../maintenance | sed '$aend of file')
-printf %s "$emails" | while IFS= read -r onemail
-do {
-python ../send-email.py "$onemail" "To Do List" "changes.log has not been created: 
-$version 
-$changes "
-} done
-fi
 
 else
 #can not find skype setup file anymore
